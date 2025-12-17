@@ -1,7 +1,7 @@
 mod attributes;
 
 use bytemuck::bytes_of;
-use glam::{Mat4, Vec2, Vec3, vec3};
+use glam::{Mat4, Vec3, vec3};
 use std::f32::consts::{PI, TAU};
 use wgpu::util::DeviceExt;
 

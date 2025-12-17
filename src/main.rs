@@ -64,6 +64,7 @@ impl State {
             .await?;
 
         let surface_capabilities = surface.get_capabilities(&adapter);
+
         let surface_format = surface_capabilities
             .formats
             .iter()
@@ -71,20 +72,22 @@ impl State {
             .copied()
             .unwrap_or(surface_capabilities.formats[0]);
 
+        dbg!(surface_format);
+
         let surface_config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
             format: surface_format,
             width: size.width,
             height: size.height,
-            present_mode: surface_capabilities.present_modes[0],
+            present_mode: wgpu::PresentMode::Fifo,
             alpha_mode: surface_capabilities.alpha_modes[0],
-            view_formats: vec![],
+            view_formats: vec![surface_format.add_srgb_suffix()],
             desired_maximum_frame_latency: 2,
         };
 
         let depth_buffer = Self::create_depth_buffer(&device, size.width, size.height);
 
-        let pipelines = Pipelines::new(&device, surface_format);
+        let pipelines = Pipelines::new(&device, surface_format.add_srgb_suffix());
 
         Ok(Self {
             window,
@@ -127,8 +130,6 @@ impl State {
     }
 
     pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
-        self.window.request_redraw();
-
         if !self.is_surface_configured {
             return Ok(());
         }
@@ -137,7 +138,10 @@ impl State {
 
         let output = self.surface.get_current_texture()?;
 
-        let view = output.texture.create_view(&Default::default());
+        let view = output.texture.create_view(&wgpu::TextureViewDescriptor {
+            format: Some(self.surface_config.format.add_srgb_suffix()),
+            ..Default::default()
+        });
 
         let depth_view = self.depth_buffer.create_view(&Default::default());
 
@@ -190,6 +194,8 @@ impl State {
 
         self.queue.submit(std::iter::once(encoder.finish()));
         output.present();
+
+        self.window.request_redraw();
 
         Ok(())
     }
