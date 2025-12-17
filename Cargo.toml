@@ -29,6 +29,3 @@ web-sys = { version = "0.3", features = [
     "Window",
     "Element",
 ]}
-
-[lib]
-crate-type = ["cdylib", "rlib"]
