@@ -10,10 +10,10 @@ use self::attributes::{TubeInstance, Vertex};
 #[repr(C)]
 #[derive(Debug, Copy, Clone, bytemuck::Zeroable, bytemuck::Pod)]
 struct Uniforms {
-    camera: glam::Mat4,
-    light_direction: glam::Vec3,
+    camera: Mat4,
+    light_direction: Vec3,
     _padding_1: u32,
-    ambient: glam::Vec3,
+    ambient: Vec3,
     _padding_2: u32,
 }
 
