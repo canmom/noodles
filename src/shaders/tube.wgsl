@@ -1,15 +1,15 @@
 struct VertexInput {
     @location(0) position: vec3<f32>,
-    @location(1) colour: vec3<f32>,
 }
 
 struct Instance {
-    @location(2) start_position: vec3<f32>,
-    @location(3) start_normal: vec3<f32>,
-    @location(4) start_bitangent: vec3<f32>,
-    @location(5) end_position: vec3<f32>,
-    @location(6) end_normal: vec3<f32>,
-    @location(7) end_bitangent: vec3<f32>,
+    @location(1) start_position: vec3<f32>,
+    @location(2) start_normal: vec3<f32>,
+    @location(3) start_bitangent: vec3<f32>,
+    @location(4) end_position: vec3<f32>,
+    @location(5) end_normal: vec3<f32>,
+    @location(6) end_bitangent: vec3<f32>,
+    @location(7) colour: vec3<f32>,
     @location(8) radius: f32,
 }
 
@@ -38,11 +38,10 @@ fn vs_main(vert: VertexInput, instance: Instance) -> VertexOutput {
 
     let clip_position = uniforms.camera * vec4(world_position, 1.0);
 
-    return VertexOutput(clip_position, world_normal, vert.colour);
+    return VertexOutput(clip_position, world_normal, instance.colour);
 }
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    return vec4(in.colour * saturate(dot(uniforms.light_direction, in.normal))
-        + in.colour * uniforms.ambient, 1.0);
+    return vec4(in.colour * (saturate(dot(uniforms.light_direction, in.normal)) + uniforms.ambient), 1.0);
 }

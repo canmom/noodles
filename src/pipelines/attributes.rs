@@ -1,8 +1,9 @@
+use glam::Vec3;
+
 #[repr(C)]
 #[derive(Debug, Copy, Clone, bytemuck::Zeroable, bytemuck::Pod)]
 pub struct Vertex {
-    pub position: glam::Vec3,
-    pub colour: glam::Vec3,
+    pub position: Vec3,
 }
 
 impl Vertex {
@@ -11,7 +12,6 @@ impl Vertex {
         step_mode: wgpu::VertexStepMode::Vertex,
         attributes: &wgpu::vertex_attr_array![
             0 => Float32x3,
-            1 => Float32x3,
         ],
     };
 }
@@ -19,12 +19,13 @@ impl Vertex {
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Zeroable, bytemuck::Pod)]
 pub struct TubeInstance {
-    pub start_position: glam::Vec3,
-    pub start_normal: glam::Vec3,
-    pub start_bitangent: glam::Vec3,
-    pub end_position: glam::Vec3,
-    pub end_normal: glam::Vec3,
-    pub end_bitangent: glam::Vec3,
+    pub start_position: Vec3,
+    pub start_normal: Vec3,
+    pub start_bitangent: Vec3,
+    pub end_position: Vec3,
+    pub end_normal: Vec3,
+    pub end_bitangent: Vec3,
+    pub colour: Vec3,
     pub radius: f32,
 }
 
@@ -33,6 +34,7 @@ impl TubeInstance {
         array_stride: std::mem::size_of::<Self>() as wgpu::BufferAddress,
         step_mode: wgpu::VertexStepMode::Instance,
         attributes: &wgpu::vertex_attr_array![
+            1 => Float32x3,
             2 => Float32x3,
             3 => Float32x3,
             4 => Float32x3,

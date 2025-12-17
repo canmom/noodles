@@ -2,6 +2,7 @@ mod pipelines;
 
 use crate::pipelines::Pipelines;
 
+use glam::vec3;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
@@ -14,16 +15,18 @@ use winit::{
     window::{Fullscreen, Window, WindowId},
 };
 
-use std::sync::Arc;
+use std::{sync::Arc, time::Instant};
 
 struct State {
     window: Arc<Window>,
     surface: wgpu::Surface<'static>,
+    depth_buffer: wgpu::Texture,
     device: wgpu::Device,
     queue: wgpu::Queue,
     surface_config: wgpu::SurfaceConfiguration,
     is_surface_configured: bool,
     pipelines: Pipelines,
+    start_time: Instant,
 }
 
 impl State {
@@ -75,6 +78,21 @@ impl State {
             desired_maximum_frame_latency: 2,
         };
 
+        let depth_buffer = device.create_texture(&wgpu::TextureDescriptor {
+            label: Some("Depth buffer"),
+            size: wgpu::Extent3d {
+                width: size.width,
+                height: size.height,
+                depth_or_array_layers: 1,
+            },
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: wgpu::TextureFormat::Depth32Float,
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
+            view_formats: &[],
+        });
+
         let pipelines = Pipelines::new(&device, surface_format);
 
         Ok(Self {
@@ -85,6 +103,8 @@ impl State {
             surface_config,
             is_surface_configured: false,
             pipelines,
+            depth_buffer,
+            start_time: Instant::now(),
         })
     }
 
@@ -104,11 +124,13 @@ impl State {
             return Ok(());
         }
 
+        let elapsed_time = (Instant::now() - self.start_time).as_secs_f32();
+
         let output = self.surface.get_current_texture()?;
 
-        let view = output
-            .texture
-            .create_view(&wgpu::TextureViewDescriptor::default());
+        let view = output.texture.create_view(&Default::default());
+
+        let depth_view = self.depth_buffer.create_view(&Default::default());
 
         let mut encoder = self
             .device
@@ -116,27 +138,45 @@ impl State {
                 label: Some("Render Encoder"),
             });
 
+        let centre = vec3(1.5, std::f32::consts::PI, 0.0);
+
+        self.pipelines.update_uniforms(
+            &self.queue,
+            centre + vec3(5.0 * elapsed_time.cos(), 5.0 * elapsed_time.sin(), 1.0),
+            centre,
+            self.surface_config.width as f32 / self.surface_config.height as f32,
+        );
+
         {
-            let _render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: Some("Render Pass"),
                 color_attachments: &[Some(wgpu::RenderPassColorAttachment {
                     view: &view,
                     resolve_target: None,
                     ops: wgpu::Operations {
                         load: wgpu::LoadOp::Clear(wgpu::Color {
-                            r: 0.0,
-                            g: 0.2,
-                            b: 0.3,
+                            r: 0.01,
+                            g: 0.01,
+                            b: 0.014,
                             a: 1.0,
                         }),
                         store: wgpu::StoreOp::Store,
                     },
                     depth_slice: None,
                 })],
-                depth_stencil_attachment: None,
+                depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
+                    view: &depth_view,
+                    depth_ops: Some(wgpu::Operations {
+                        load: wgpu::LoadOp::Clear(0.0),
+                        store: wgpu::StoreOp::Store,
+                    }),
+                    stencil_ops: None,
+                }),
                 occlusion_query_set: None,
                 timestamp_writes: None,
             });
+
+            self.pipelines.render(&mut render_pass);
         }
 
         self.queue.submit(std::iter::once(encoder.finish()));
@@ -221,7 +261,7 @@ impl ApplicationHandler<State> for Demo {
     fn window_event(
         &mut self,
         event_loop: &ActiveEventLoop,
-        window_id: WindowId,
+        _window_id: WindowId,
         event: WindowEvent,
     ) {
         match event {
