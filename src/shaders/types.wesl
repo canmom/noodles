@@ -22,5 +22,6 @@ struct VertexOutput {
 struct Uniforms {
     camera: mat4x4<f32>,
     light_direction: vec3<f32>,
+    time: f32,
     ambient: vec3<f32>,
 }

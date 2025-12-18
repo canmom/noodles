@@ -13,7 +13,7 @@ use self::attributes::{TubeInstance, Vertex};
 struct Uniforms {
     camera: Mat4,
     light_direction: Vec3,
-    _padding_1: u32,
+    time: f32,
     ambient: Vec3,
     _padding_2: u32,
 }
@@ -30,7 +30,7 @@ pub struct Pipelines {
 impl Pipelines {
     const SIDES: usize = 8;
     const VERTICES: usize = 2 * Self::SIDES + 2;
-    const WORKGROUPS: UVec3 = uvec3(1, 2, 1);
+    const WORKGROUPS: UVec3 = uvec3(2, 2, 1);
     const WORKGROUP_SIZE: UVec3 = uvec3(16, 16, 1);
     const STRANDS: UVec3 = uvec3(
         Self::WORKGROUPS.x * Self::WORKGROUP_SIZE.x,
@@ -139,10 +139,16 @@ impl Pipelines {
         let compute_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
             label: Some("Noodle compute bind group"),
             layout: &compute_bind_group_layout,
-            entries: &[wgpu::BindGroupEntry {
-                binding: 0,
-                resource: instance_buffer.as_entire_binding(),
-            }],
+            entries: &[
+                wgpu::BindGroupEntry {
+                    binding: 0,
+                    resource: uniform_buffer.as_entire_binding(),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 1,
+                    resource: instance_buffer.as_entire_binding(),
+                },
+            ],
         });
 
         Self {
@@ -161,13 +167,14 @@ impl Pipelines {
         camera_pos: Vec3,
         camera_target: Vec3,
         aspect_ratio: f32,
+        time: f32,
     ) {
         let projection = Mat4::perspective_infinite_reverse_rh(PI / 6.0, aspect_ratio, 0.5);
         let view = Mat4::look_at_rh(camera_pos, camera_target, vec3(0.0, 0.0, 1.0));
         let new_uniforms = Uniforms {
             camera: projection * view,
             light_direction: vec3(-0.5, -0.2, 1.0).normalize(),
-            _padding_1: 0,
+            time,
             ambient: vec3(0.05, 0.05, 0.07),
             _padding_2: 0,
         };

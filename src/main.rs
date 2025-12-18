@@ -134,7 +134,7 @@ impl State {
             return Ok(());
         }
 
-        let elapsed_time = (Instant::now() - self.start_time).as_secs_f32();
+        let elapsed_time = (Instant::now() - self.start_time).as_secs_f32() * 0.1;
 
         let output = self.surface.get_current_texture()?;
 
@@ -151,13 +151,19 @@ impl State {
                 label: Some("Render Encoder"),
             });
 
-        let centre = vec3(0.0, 0.0, 1.6);
+        let centre = vec3(0.8, 0.0, 1.6);
 
         self.pipelines.update_uniforms(
             &self.queue,
-            centre + vec3(5.0 * elapsed_time.cos(), 5.0 * elapsed_time.sin(), 1.0),
+            centre
+                + vec3(
+                    5.0 * elapsed_time.cos(),
+                    4.0 * (0.9 * elapsed_time).sin(),
+                    3.0 * (0.3 * elapsed_time + 1.2).sin(),
+                ),
             centre,
             self.surface_config.width as f32 / self.surface_config.height as f32,
+            0.5 * elapsed_time,
         );
 
         {
