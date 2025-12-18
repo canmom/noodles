@@ -1,9 +1,11 @@
 import package::types::{Instance, VertexInput, VertexOutput, Uniforms};
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
+@group(0) @binding(1) var<storage> instances: array<Instance>;
 
 @vertex
-fn vs_main(vert: VertexInput, instance: Instance) -> VertexOutput {
+fn vs_main(vert: VertexInput, @builtin(instance_index) instance_index: u32) -> VertexOutput {
+    let instance = instances[instance_index];
     let spline_position = mix(instance.start_position, instance.end_position, vert.position.z);
     let spline_normal = mix(instance.start_normal, instance.end_normal, vert.position.z);
     let spline_bitangent = mix(instance.start_bitangent, instance.end_bitangent, vert.position.z);

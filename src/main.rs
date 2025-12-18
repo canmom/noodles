@@ -151,7 +151,7 @@ impl State {
                 label: Some("Render Encoder"),
             });
 
-        let centre = vec3(1.5, std::f32::consts::PI, 0.0);
+        let centre = vec3(0.0, 0.0, 1.6);
 
         self.pipelines.update_uniforms(
             &self.queue,
@@ -159,6 +159,14 @@ impl State {
             centre,
             self.surface_config.width as f32 / self.surface_config.height as f32,
         );
+
+        {
+            let mut compute_pass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor {
+                label: Some("Compute Pass"),
+                timestamp_writes: None,
+            });
+            self.pipelines.compute_instances(&mut compute_pass);
+        }
 
         {
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
