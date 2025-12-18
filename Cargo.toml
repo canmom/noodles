@@ -13,6 +13,7 @@ pollster = "0.4.0"
 wgpu = "27.0.1"
 winit = "0.30.12"
 web-time = "1.1.0"
+wesl = "0.3.1"
 
 [profile.release]
 lto = "thin"
@@ -30,3 +31,6 @@ web-sys = { version = "0.3", features = [
     "Window",
     "Element",
 ]}
+
+[build-dependencies]
+wesl = "0.3.1"

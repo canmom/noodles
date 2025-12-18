@@ -3,6 +3,7 @@ mod attributes;
 use bytemuck::bytes_of;
 use glam::{Mat4, Vec3, vec3};
 use std::f32::consts::{PI, TAU};
+use wesl::include_wesl;
 use wgpu::util::DeviceExt;
 
 use self::attributes::{TubeInstance, Vertex};
@@ -19,6 +20,7 @@ struct Uniforms {
 
 pub struct Pipelines {
     render_pipeline: wgpu::RenderPipeline,
+    //compute_pipeline: wgpu::ComputePipeline,
     bind_group: wgpu::BindGroup,
     uniform_buffer: wgpu::Buffer,
     cylinder_vertex_buffer: wgpu::Buffer,
@@ -33,7 +35,7 @@ impl Pipelines {
     pub fn new(device: &wgpu::Device, surface_format: wgpu::TextureFormat) -> Self {
         let shaders = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("Noodles vertex shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/tube.wgsl").into()),
+            source: wgpu::ShaderSource::Wgsl(include_wesl!("tube").into()),
         });
 
         let uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
@@ -97,6 +99,15 @@ impl Pipelines {
         let cylinder_vertex_buffer = Self::create_cylinder(device);
 
         let instance_buffer = Self::create_sinusoid_instances(device);
+
+        // let compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
+        //     label: (),
+        //     layout: (),
+        //     module: (),
+        //     entry_point: (),
+        //     compilation_options: (),
+        //     cache: (),
+        // });
 
         Self {
             render_pipeline,
