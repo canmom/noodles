@@ -5,24 +5,45 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Noodles Demo</title>
         <base href="/" />
-    <link rel="modulepreload" href="/noodles-9641de02156c019e.js" crossorigin="anonymous" integrity="sha384-403X2du2U9YmPPYNVj8lnePIrdf8/NEihN0N1zgT7BztSKgKohv6LO4+2pQxagdV"><link rel="preload" href="/noodles-9641de02156c019e_bg.wasm" crossorigin="anonymous" integrity="sha384-cTsOzdPnlEqDuJ0C2DNtFPZ31gWRrfN36AGsGZIyj0KLlFJR0nahxI2hwrpTcvI6" as="fetch" type="application/wasm"></head>
+        <link
+            rel="modulepreload"
+            href="noodles-9641de02156c019e.js"
+            crossorigin="anonymous"
+            integrity="sha384-403X2du2U9YmPPYNVj8lnePIrdf8/NEihN0N1zgT7BztSKgKohv6LO4+2pQxagdV"
+        />
+        <link
+            rel="preload"
+            href="noodles-9641de02156c019e_bg.wasm"
+            crossorigin="anonymous"
+            integrity="sha384-cTsOzdPnlEqDuJ0C2DNtFPZ31gWRrfN36AGsGZIyj0KLlFJR0nahxI2hwrpTcvI6"
+            as="fetch"
+            type="application/wasm"
+        />
+    </head>
     <body style="margin: 0; padding: 0; width: 100%; height: 100svh">
         <canvas
             id="canvas"
             style="display: block; width: 100%; height: 100%"
         ></canvas>
-        <link rel="stylesheet" href="/index-597d90855083f957.css" integrity="sha384-7GZOiJ7WwbJ2PKz3iZ2Vt/NHNz65guUjQZ/uo6o2LYkbO/Al8pImelhUBJCReJw+"/>
-        
-<script type="module">
-import init, * as bindings from '/noodles-9641de02156c019e.js';
-const wasm = await init({ module_or_path: '/noodles-9641de02156c019e_bg.wasm' });
+        <link
+            rel="stylesheet"
+            href="index-597d90855083f957.css"
+            integrity="sha384-7GZOiJ7WwbJ2PKz3iZ2Vt/NHNz65guUjQZ/uo6o2LYkbO/Al8pImelhUBJCReJw+"
+        />
 
+        <script type="module">
+            import init, * as bindings from "noodles-9641de02156c019e.js";
+            const wasm = await init({
+                module_or_path: "noodles-9641de02156c019e_bg.wasm",
+            });
 
-window.wasmBindings = bindings;
+            window.wasmBindings = bindings;
 
-
-dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
-
-</script>
+            dispatchEvent(
+                new CustomEvent("TrunkApplicationStarted", {
+                    detail: { wasm },
+                }),
+            );
+        </script>
     </body>
 </html>
