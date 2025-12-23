@@ -21,7 +21,7 @@ fn hash( u : vec3<u32>) -> vec3<f32> {
 fn noised( x : vec3<f32> ) -> vec4<f32>
 {
   // grid
-  let i = vec3<u32>(floor(x));
+  let i = vec3<u32>(vec3<i32>(floor(x))+vec3(2147483647));
 
   let f = fract(x);
 
